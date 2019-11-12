@@ -23,7 +23,20 @@ function doStuff(data){
     });
 }
 
+// doStuff(true).then(
+//     (successMessage) => console.log(successMessage),
+//     (errorMessage) => console.log(errorMessage)
+// );
+
 doStuff(true).then(
-    (successMessage) => console.log(successMessage),
-    (errorMessage) => console.log(errorMessage)
+    ()=>{
+        console.log("first");
+        return doStuff(true);
+    }
+).then(
+    ()=>{
+        console.log("second");
+    }
+).catch(
+    ()=> console.log("error")
 );
