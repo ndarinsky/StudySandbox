@@ -1,10 +1,11 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import tiny from "@dargie/pmpackage"
+// import { aggregation } from "@dargie/pmpackage"
+const test = require("@dargie/pmpackage");
 
 function App() {
-  console.log(tiny("aaa ddd fff"))
+  test.applyAggregations("111", "222")
   return (
     <div className="App">
       <header className="App-header">

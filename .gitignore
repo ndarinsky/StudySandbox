@@ -4,3 +4,5 @@ AwsServerless/node-app/node_modules/
 .vscode/
 
 AwsServerless/server/node_modules/
+
+TestNpmPackage/node_modules/
