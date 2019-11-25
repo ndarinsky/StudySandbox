@@ -1,59 +1,78 @@
-const reselect = require('reselect')
-
-
 module.exports = {
-    getParams = currentRoute => "getCurrentRoute", //todo dar
-    getAreaFromUrl = reselect.createSelector(
-        this.getParams,
-        params => params.area
-    ),
+    getResultsTable(state){
+        return state.resultsTable
+    },
 
-    getResultsTable = state => state.resultsTable,
-    getResultsData = state => state.results.data,
-    getActiveEntity = state => (state.entities || {}).activeEntity,
-    getActiveSubEntity = state => this.getMetadata(state).subEntity,
-    getMetadata = state => state.citelineEngage.metadata, //todo dar
+    getResultsData(state){
+        return state.results.data
+    },
+    getActiveEntity(state) {
+        return (state.entities || {}).activeEntity
+    },
+    getActiveSubEntity(state) {
+        return this.getMetadata(state).subEntity
+    },
 
-    getTableEntity = reselect.createSelector(
-        this.getAreaFromUrl,
-        this.getActiveEntity,
-        this.getActiveSubEntity,
-        (currentArea, activeEntity, engageEntity) =>
-            currentArea !== areas.citelineEngage ? activeEntity : engageEntity
-    ),
+    getMetadata(state) {
+        return state.citelineEngage.metadata //todo dar
+    },
 
-    getStateForTableEntity = reselect.createSelector(
-        this.getTableEntity,
-        this.getResultsTable,
-        (entity, resultsTable) => resultsTable[entity] || {}
-    ),
+    getParams(state) {
+        return "getCurrentRoute" //todo dar
+    },
 
-    getColumnSettings = reselect.createSelector(
-        this.getStateForTableEntity,
-        (table) => table.columnSettings || []
-    ),
+    getAreaFromUrl(state) {
+        params = this.getParams(state)
+        return params.area
+    },
 
-    getVisibleColumnIds = reselect.createSelector(
-        this.getColumnSettings,
-        ( settings ) => settings.filter(c => c.isVisible)
-            .map(c => c.columnName)
-    ),
+    getBaseResults(state) {
+        let values = getActiveEntityData(state)
+        return values || []
+    },
 
-    getAllColumnsById = reselect.createSelector(
-        this.getStateForTableEntity,
-        (table) => table.allColumnsById
-    ),
+    getActiveEntityData(state) {
+        let activeEntity = this.getActiveEntity(state)
+        let resultsData = this.getResultsData(state)
+        return resultsData[activeEntity] || getDefaultEntityData()
+    },
 
-    getVisibleColumns = reselect.createSelector(
-        this.getAllColumnsById,
-        this.getVisibleColumnIds,
-        (allColumnsById, visibleColumnIds) =>
-            visibleColumnIds.map(c => allColumnsById[c])
-                .filter(c => c !== undefined)
-    ),
+    getTableEntity(state) {
+        let currentArea = this.getAreaFromUrl(state)
+        let activeEntity = this.getActiveEntity(state)
+        let engageEntity = this.getActiveSubEntity(state)
+        return currentArea !== areas.citelineEngage ? activeEntity : engageEntity
+    },
 
-    getVisibleCoupletAggregations = reselect.createSelector(
-        this.getVisibleColumns,
+    getStateForTableEntity(state) {
+        entity = this.getTableEntity(state)
+        resultsTable = this.getResultsTable(state)
+        return resultsTable[entity] || {}
+    },
+
+    getColumnSettings(state) {
+        let table = this.getStateForTableEntity(state)
+        return table.columnSettings || []
+    },
+
+    getVisibleColumnIds(state) {
+        let settings = this.getColumnSettings(state)
+        return settings.filter(c => c.isVisible).map(c => c.columnName)
+    },
+
+    getAllColumnsById(state) {
+        let table = this.getStateForTableEntity(state)
+        return table.allColumnsById
+    },
+
+    getVisibleColumns(state) {
+        let allColumnsById = this.getAllColumnsById(state)
+        let visibleColumnIds = this.getVisibleColumnIds(state)
+        return visibleColumnIds.map(c => allColumnsById[c]).filter(c => c !== undefined)
+    },
+
+    getVisibleCoupletAggregations(state) { 
+        let columns = this.getVisibleColumns(state)
         columns => {
             const selectedCouplets = (columns || [])
                 .filter(
@@ -92,18 +111,6 @@ module.exports = {
             const coupletSet = Object.keys(selectedCouplets).map(x => selectedCouplets[x])
     
             return coupletSet
-        }
-    ),
-
-    getBaseResults = reselect.createSelector(
-        getActiveEntityData,
-        ({values}) => values || emptyResults
-    ),
-
-    getActiveEntityData = reselect.createSelector(
-        this.getActiveEntity,
-        this.getResultsData,
-        (activeEntity, resultsData) =>
-            resultsData[activeEntity] || getDefaultEntityData()
-    )
+        }   
+    }
 }
