@@ -1,6 +1,13 @@
 const distinctAggregations = require('./getDistinctAggregations')
+const coupletAggregations = require('./coupletAggregations')
 
 module.exports = {
+  startAggregation(state) {
+    let visibleCoupletAggregations = coupletAggregations.getVisibleCoupletAggregations(state)
+    let baseResults = coupletAggregations.getBaseResults(state)
+    this.applyAggregations(baseResults, visibleCoupletAggregations)
+  },
+
   applyAggregations(values, coupletsForAggregation) {
     if (!coupletsForAggregation || coupletsForAggregation.length === 0) {
       return values
