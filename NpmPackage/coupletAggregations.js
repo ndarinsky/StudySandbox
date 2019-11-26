@@ -1,3 +1,5 @@
+const aggregationFunctions = require('./aggregation')
+
 module.exports = {
     getResultsTable(state){
         return state.resultsTable
@@ -6,35 +8,21 @@ module.exports = {
     getResultsData(state){
         return state.results.data
     },
-    getActiveEntity(state) {
-        return (state.entities || {}).activeEntity
-    },
-    getActiveSubEntity(state) {
-        return this.getMetadata(state).subEntity
-    },
-
-    getMetadata(state) {
-        return state.citelineEngage.metadata //todo dar
-    },
-
-    getParams(state) {
-        return "getCurrentRoute" //todo dar
-    },
-
+  
     getAreaFromUrl(state) {
         params = this.getParams(state)
         return params.area
     },
 
-    getBaseResults(state) {
-        let values = getActiveEntityData(state)
+    getBaseResults(request, results) {
+        let values = this.getActiveEntityData(request, results)
         return values || []
     },
 
-    getActiveEntityData(state) {
-        let activeEntity = this.getActiveEntity(state)
-        let resultsData = this.getResultsData(state)
-        return resultsData[activeEntity] || getDefaultEntityData()
+    getActiveEntityData(request, results) {
+        let activeEntity = request.entity
+        let resultsData = results.table
+        return resultsData[activeEntity] || this.getDefaultEntityData()
     },
 
     getTableEntity(state) {
@@ -71,9 +59,35 @@ module.exports = {
         return visibleColumnIds.map(c => allColumnsById[c]).filter(c => c !== undefined)
     },
 
-    getVisibleCoupletAggregations(state) { 
-        let columns = this.getVisibleColumns(state)
-        columns => {
+    getCouplets(acc, cur) {
+        const {name: coupletName, aggregation, enableHighlighting} = cur.settings.couplet
+        const name = coupletName
+        const aggregations = (Array.isArray(aggregation) ? aggregation : [aggregation])
+
+        if (!acc[name]) {
+            acc[name] = {
+                coupletName: coupletName,
+                aggregations: aggregations
+                    .map(agg => ({
+                        field: agg.field,
+                        compareFunc: getComparisonFunction(agg)
+                    })),
+                columns: []
+            }
+
+            if(enableHighlighting){
+                acc[name].aggregations.push({field: 'isMatchingFilter', compareFunc: getComparisonFunction() })
+            }
+        }
+
+        if (!aggregations.find(x => x.field === cur.name)) {
+            acc[name].columns.push(cur.name)
+        }
+        return acc
+    },
+
+    getVisibleCoupletAggregations(request) { 
+        let columns = request.body.columns
             const selectedCouplets = (columns || [])
                 .filter(
                     x =>
@@ -83,7 +97,7 @@ module.exports = {
                 )
                 .reduce((acc, cur) => {
                     const {name: coupletName, aggregation, enableHighlighting} = cur.settings.couplet
-    
+                    const name = coupletName
                     const aggregations = (Array.isArray(aggregation) ? aggregation : [aggregation])
     
                     if (!acc[name]) {
@@ -92,13 +106,13 @@ module.exports = {
                             aggregations: aggregations
                                 .map(agg => ({
                                     field: agg.field,
-                                    compareFunc: getComparisonFunction(agg)
+                                    compareFunc: aggregationFunctions.getComparisonFunction(agg)
                                 })),
                             columns: []
                         }
     
                         if(enableHighlighting){
-                            acc[name].aggregations.push({field: 'isMatchingFilter', compareFunc: getComparisonFunction() })
+                            acc[name].aggregations.push({field: 'isMatchingFilter', compareFunc: aggregationFunctions.getComparisonFunction() })
                         }
                     }
     
@@ -111,6 +125,5 @@ module.exports = {
             const coupletSet = Object.keys(selectedCouplets).map(x => selectedCouplets[x])
     
             return coupletSet
-        }   
     }
 }
