@@ -1,15 +1,4 @@
 let input = {
-    status: ["Launched",
-"Launched",
-"Registered",
-"Phase III Clinical Trial",
-"Phase II Clinical Trial",
-"Phase II Clinical Trial",
-"Phase II Clinical Trial",
-"Phase I Clinical Trial",
-"Preclinical",
-"No Development Reported",
-"Discontinued"],
     company: [
         "Actis Biologics",
 "Chiesi",
@@ -21,7 +10,18 @@ let input = {
 "Novartis",
 "Novartis",
 "Novartis",
-"Chiesi"]
+"Chiesi"],
+    status: ["Launched",
+"Launched",
+"Registered",
+"Phase III Clinical Trial",
+"Phase II Clinical Trial",
+"Phase II Clinical Trial",
+"Phase II Clinical Trial",
+"Phase I Clinical Trial",
+"Preclinical",
+"No Development Reported",
+"Discontinued"]
 }
 
 let uniqCompany = Array.from(new Set(input.company))
@@ -37,16 +37,13 @@ function removewithfilter(arr) {
     let result = []
     collectionWithoutRepeats.forEach(element => {
         let index = arr.indexOf(element)
-        result.push({
-            item: element,
-            index: index
-        })
+        result.push(index)
     });
         
     return result; 
 } 
 
-function mergeWithStatus(arr, statuses) {
+function mergeWithStatus(arr, indeces) {
     return arr.map(x => {
         let item = {
             company: x.item,
@@ -56,10 +53,33 @@ function mergeWithStatus(arr, statuses) {
     })
 }
 
-let collectionWithoutRepeats = removewithfilter(input.company)
+function removeTest(input, indeces){
+    for (var key in input){
+        let row = input[key];
+        row = row.filter((v, i) => 
+        { 
+            return indeces.includes(i) 
+        })
+        input[key] = row
+    }
+}
 
-let finalResult = mergeWithStatus(collectionWithoutRepeats, input.status)
+let indeces = removewithfilter(input["company"])
+let ttt = removeTest(input, indeces)
 
-console.log(removewithfilter(input.company)); 
-console.log(finalResult);
+const array1 = [1, 2, 3, 4];
+const reducer = (accumulator, currentValue) => {
+    accumulator[currentValue] = currentValue+"__";
+    return accumulator
+}
+// console.log(array1.reduce(reducer, {}));
+
+// console.log(indeces)
+console.log(input)
+
+// for (var key in input){
+//     console.log(input[key])
+// }
+// console.log(removewithfilter(input.company)); 
+// console.log(finalResult);
 
