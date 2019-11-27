@@ -2,9 +2,9 @@ const distinctAggregations = require('./getDistinctAggregations')
 const coupletAggregations = require('./coupletAggregations')
 
 module.exports = {
-  startAggregation(state) {
-    let visibleCoupletAggregations = coupletAggregations.getVisibleCoupletAggregations(state)
-    let baseResults = coupletAggregations.getBaseResults(state)
+  startAggregation(request, results) {
+    let visibleCoupletAggregations = coupletAggregations.getVisibleCoupletAggregations(request)
+    let baseResults = coupletAggregations.getBaseResults(request, results)
     this.applyAggregations(baseResults, visibleCoupletAggregations)
   },
 
