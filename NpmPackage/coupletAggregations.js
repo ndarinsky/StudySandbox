@@ -22,7 +22,8 @@ module.exports = {
     getActiveEntityData(request, results) {
         let activeEntity = request.entity
         let resultsData = results.table
-        return resultsData[activeEntity] || this.getDefaultEntityData()
+        return resultsData
+        // return resultsData[activeEntity] || this.getDefaultEntityData()
     },
 
     getTableEntity(state) {
@@ -59,13 +60,13 @@ module.exports = {
         return visibleColumnIds.map(c => allColumnsById[c]).filter(c => c !== undefined)
     },
 
-    getCouplets(acc, cur) {
-        const {name: coupletName, aggregation, enableHighlighting} = cur.settings.couplet
+    getCouplets(accumulator, current) {
+        const {name: coupletName, aggregation, enableHighlighting} = current.settings.couplet
         const name = coupletName
         const aggregations = (Array.isArray(aggregation) ? aggregation : [aggregation])
 
-        if (!acc[name]) {
-            acc[name] = {
+        if (!accumulator[name]) {
+            accumulator[name] = {
                 coupletName: coupletName,
                 aggregations: aggregations
                     .map(agg => ({
@@ -76,14 +77,14 @@ module.exports = {
             }
 
             if(enableHighlighting){
-                acc[name].aggregations.push({field: 'isMatchingFilter', compareFunc: getComparisonFunction() })
+                accumulator[name].aggregations.push({field: 'isMatchingFilter', compareFunc: getComparisonFunction() })
             }
         }
 
-        if (!aggregations.find(x => x.field === cur.name)) {
-            acc[name].columns.push(cur.name)
+        if (!aggregations.find(x => x.field === current.name)) {
+            accumulator[name].columns.push(current.name)
         }
-        return acc
+        return accumulator
     },
 
     getVisibleCoupletAggregations(request) { 
@@ -95,8 +96,8 @@ module.exports = {
                         x.settings.couplet &&
                         x.settings.couplet.aggregation
                 )
-                .reduce((acc, cur) => {
-                    const {name: coupletName, aggregation, enableHighlighting} = cur.settings.couplet
+                .reduce((acc, current) => {
+                    const {name: coupletName, aggregation, enableHighlighting} = current.settings.couplet
                     const name = coupletName
                     const aggregations = (Array.isArray(aggregation) ? aggregation : [aggregation])
     
@@ -116,8 +117,8 @@ module.exports = {
                         }
                     }
     
-                    if (!aggregations.find(x => x.field === cur.name)) {
-                        acc[name].columns.push(cur.name)
+                    if (!aggregations.find(x => x.field === current.name)) {
+                        acc[name].columns.push(current.name)
                     }
                     return acc
                 }, {})

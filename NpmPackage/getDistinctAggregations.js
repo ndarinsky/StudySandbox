@@ -17,6 +17,7 @@ module.exports = {
       return { key: keys.map(key => (x[key] || {}).caption || x[key]).join(','), index: i }
     })
 
+    //must be 4 groups
     const groups = keysMapped.reduce((acc, cur) => {
       if (acc[cur.key]) {
         acc[cur.key].push(cur.index)
@@ -43,6 +44,33 @@ module.exports = {
     return aggregatedRows
   },
 
+  customAggregate(collection, keys, aggregations = []) {
+    const relevantFields = keys.concat(aggregations.map(({ field }) => field))
+    const selectRelevantFields = x => relevantFields.reduce((acc, cur) => {
+      acc[cur] = x[cur]
+      return acc
+    }, {})
+
+    const test = collection.map((x) => selectRelevantFields(x))
+
+    const preparedCollection = collection.map((x) =>
+      ({ ...selectRelevantFields(x) }))
+
+    const rowIndexes = this.getDistinctRows(preparedCollection, keys, aggregations)
+
+    return {
+      result: rowIndexes.map(({ index, aggregatedRow }) => (
+        {
+          ...preparedCollection[index],
+          ...Object.keys(aggregatedRow).reduce((acc, cur) => {
+            acc[cur] = preparedCollection[aggregatedRow[cur]][cur]
+            return acc
+          }, {})
+        })),
+      aggregationResult: rowIndexes
+    }
+  },
+
   /**
  * Returns an aggregation on an array of objects.
  * @param {Object[]} collection collection to iterate over.
@@ -58,6 +86,12 @@ module.exports = {
       acc[cur] = x[cur]
       return acc
     }, {})
+
+
+ 
+
+    
+    const test = collection.map((x) => selectRelevantFields(x))
 
     const preparedCollection = collection.map((x) =>
       ({ ...selectRelevantFields(x) }))

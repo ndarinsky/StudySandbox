@@ -67,11 +67,11 @@ function removeTest(input, indeces){
 let indeces = removewithfilter(input["company"])
 let ttt = removeTest(input, indeces)
 
-const array1 = [1, 2, 3, 4];
-const reducer = (accumulator, currentValue) => {
-    accumulator[currentValue] = currentValue+"__";
-    return accumulator
-}
+// const array1 = [1, 2, 3, 4];
+// const reducer = (accumulator, currentValue) => {
+//     accumulator[currentValue] = currentValue+"__";
+//     return accumulator
+// }
 // console.log(array1.reduce(reducer, {}));
 
 // console.log(indeces)
