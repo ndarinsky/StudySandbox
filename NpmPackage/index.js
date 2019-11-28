@@ -1,7 +1,7 @@
 const distinctAggregations = require('./getDistinctAggregations')
 const coupletAggregations = require('./coupletAggregations')
 
-function getIndeces(arr) { 
+function getIndices(arr) { 
 
   const values = arr.value.sort().map(x => x.value);
   let collectionWithoutRepeats = values.filter(function(v, i, self)  
@@ -18,10 +18,10 @@ function getIndeces(arr) {
   return result; 
 }
 
-function applyIndeces(input, indeces){
+function applyIndices(input, indeces){
   for (var key in input){
       let row = input[key];
-      if (row.value){
+      if (row.value && Array.isArray(row.value)){
         row.value = row.value.filter((v, i) => 
         { 
             return indeces.includes(i) 
@@ -29,11 +29,6 @@ function applyIndeces(input, indeces){
         input[key] = row
       }
   }
-}
-
-function sort(input, sorting) {
-  let columnForSort = input[sorting.column]
-
 }
 
 module.exports = {
@@ -54,9 +49,10 @@ module.exports = {
   },
 
   aggregateCustom(row, columns, sorting){
-    let startRow = row[sorting.column] ? row[sorting.column] : row[columns[0]]
-    let indeces = getIndeces(startRow)
-    applyIndeces(row, indeces)
+    let isValid = row[sorting.column] && Array.isArray(row[sorting.column])
+    let startRow = isValid ? row[sorting.column] : row[columns[0]]
+    let indeces = getIndices(startRow)
+    applyIndices(row, indeces)
   },
 
   applyVisibleAggregations(tableData, coupletsForAggregation, sorting) {
