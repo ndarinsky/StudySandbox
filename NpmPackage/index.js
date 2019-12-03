@@ -109,7 +109,70 @@ module.exports = {
   startAggregation(request, results) {
     let visibleCoupletAggregations = getVisibleCoupletAggregations(request)
     let baseResults = results.table
-    this.applyVisibleAggregations(baseResults, visibleCoupletAggregations, request.body.sorting)
+    const aggregationResult = this.aggregateFinal(baseResults, visibleCoupletAggregations)
+    results.table = aggregationResult
+  },
+
+  aggregateFinal(values, coupletsForAggregation) {
+    if (!coupletsForAggregation || coupletsForAggregation.length === 0) {
+        return values
+    }
+
+    values = JSON.parse(JSON.stringify(values))
+
+    coupletsForAggregation.forEach(({ coupletName, columns, aggregations }) => {
+        values.forEach(row => {
+
+            if (!(row[coupletName] && row[coupletName].value && row[coupletName].value.length)) {
+                return
+            }
+
+            //construct a key for each piece of data
+            const coupletSize = row[coupletName].value.length
+
+            // const map = columns.reduce((a, col) => {
+            //     a[col] = new Map(
+            //         Array.from(
+            //             new Set(
+            //                 row[coupletName].value.map(x => x[col])
+            //             )
+            //         ).map((x, i) => [x, i])
+            //     )
+            //     return a
+            // }, {})
+
+            // if a column contains all unique data points can bail out here
+            // if (columns.some(col => map[col].length === coupletSize)) {
+            //     return
+            // }
+
+            const {
+                result,
+                aggregationResult
+            } = distinctAggregations.aggregate(row[coupletName].value, columns, aggregations)
+
+            // Select the best rows
+            columns
+                .filter(col => row[col])
+                .forEach(col => {
+                    row[col].value = aggregationResult.map(
+                        x => row[col].value[x.index]
+                    )
+                })
+
+            row[coupletName].value = result
+
+            aggregations
+                .filter(({ field: col }) => row[col])
+                .forEach(({ field: col }) => {
+                    row[col].value = aggregationResult.map(
+                        x => row[col].value[x.aggregatedRow[col]]
+                    )
+                })
+        })
+    })
+
+    return values
   },
 
   buildKeys(row, columns) {

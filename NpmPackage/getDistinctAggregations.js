@@ -1,10 +1,8 @@
-
+function getBestValueForAggregation(a = '') {
+  return a.rank || a.caption || a
+}
 
 module.exports = {
-  getBestValueForAggregation(a = '') {
-    return a.rank || a.caption || a
-  },
-
   /**
  * Returns an aggregation on an array of objects.
  * @param {Object[]} rows Array of object to perform the aggregation on.
@@ -106,7 +104,7 @@ module.exports = {
         ...selectRelevantFields(x)
     }))
 
-    const rowIndexes = getDistinctRows(preparedCollection, keys, aggregations, keyExtraction)
+    const rowIndexes = this.getDistinctRows(preparedCollection, keys, aggregations, keyExtraction)
 
     return {
         result: rowIndexes.map(({index, aggregatedRow}) => ({
