@@ -34,8 +34,9 @@ function getBestValueIndex(aggregation, row, acc, cur){
 }
 
 function applyIndices(input, groups, aggregations){
-  for (var key in input){
-      let row = input[key].value;
+  let temp = input
+  for (var key in temp){
+      let row = temp[key].value;
       if (row && Array.isArray(row)){
         let aggregation = aggregations.find(x => x.field === key)
         if (aggregation){
@@ -46,14 +47,13 @@ function applyIndices(input, groups, aggregations){
             resultRow.push(row[bestIndex])
           })
 
-          input[key] = resultRow
+          temp[key].value = resultRow
         } else {
           let resultRow = []
-          input[key] = groups.forEach(x => {
-            let groupResult = x.index[0]
-            resultRow.push(row[groupResult])
+          groups.forEach(x => {
+            resultRow.push(row[x.index[0]])
           })
-          input[key] = resultRow
+          temp[key].value = resultRow
         }
       }
   }
