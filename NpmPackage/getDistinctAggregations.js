@@ -62,28 +62,6 @@ module.exports = {
   return aggregatedRows
 },
 
-  customAggregate(collection, keys, aggregations = []) {
-    const relevantFields = keys.concat(aggregations.map(({ field }) => field))
-    const selectRelevantFields = x => relevantFields.reduce((acc, cur) => {
-      acc[cur] = x[cur]
-      return acc
-    }, {})
-
-    const rowIndexes = this.getDistinctRows(collection, keys, aggregations)
-
-    return {
-      result: rowIndexes.map(({ index, aggregatedRow }) => (
-        {
-          ...preparedCollection[index],
-          ...Object.keys(aggregatedRow).reduce((acc, cur) => {
-            acc[cur] = preparedCollection[aggregatedRow[cur]][cur]
-            return acc
-          }, {})
-        })),
-      aggregationResult: rowIndexes
-    }
-  },
-
   /**
  * Returns an aggregation on an array of objects.
  * @param {Object[]} collection collection to iterate over.
