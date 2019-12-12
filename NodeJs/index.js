@@ -36,8 +36,17 @@ function removewithfilter(arr) {
 
     let result = []
     collectionWithoutRepeats.forEach(element => {
-        let index = arr.indexOf(element)
-        result.push(index)
+        let i = 0
+        let indeces = arr.reduce((acc, cur) => {
+            if (cur === element){
+                acc.push(i)
+            }
+            i++
+            return acc
+        }, [])
+        result.push({
+            item: element,
+            indexes: indeces})
     });
         
     return result; 
@@ -64,22 +73,25 @@ function removeTest(input, indeces){
     }
 }
 
+function merge(input) {
+    let result = []
+    for (var key in input){
+        
+        if (input[key] && Array.isArray(input[key])){
+            let i = 0
+            for (var key2 in input){
+                if (input[key2] && Array.isArray(input[key2] && key !==key2)) {
+                    result.push({ 
+                    key: key2,
+                    items: input[key2][i]
+                    })
+                }
+            }
+        }
+    }
+}
+
 let indeces = removewithfilter(input["company"])
-let ttt = removeTest(input, indeces)
-
-// const array1 = [1, 2, 3, 4];
-// const reducer = (accumulator, currentValue) => {
-//     accumulator[currentValue] = currentValue+"__";
-//     return accumulator
-// }
-// console.log(array1.reduce(reducer, {}));
-
-// console.log(indeces)
-console.log(input)
-
-// for (var key in input){
-//     console.log(input[key])
-// }
-// console.log(removewithfilter(input.company)); 
-// console.log(finalResult);
+removeTest(input, indeces)
+// console.log(merge(input))
 
