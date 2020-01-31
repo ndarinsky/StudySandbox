@@ -41,4 +41,5 @@ Teacher.prototype.greeting = function() {
 console.log(Teacher.prototype.constructor)
 
 let teacher2 = new Teacher('Dave', 'Griffiths', 31, 'male', ['football', 'cookery'], 'mathematics');
-console.log(teacher2.greeting())
+console.log(teacher2 instanceof Person)
+
