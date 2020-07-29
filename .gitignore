@@ -6,3 +6,5 @@ AwsServerless/node-app/node_modules/
 AwsServerless/server/node_modules/
 
 TestNpmPackage/node_modules/
+
+NodeJs/node_modules/
